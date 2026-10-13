@@ -215,6 +215,7 @@ input[type=color]::-webkit-color-swatch { border-radius:2px; border:none; }
     <button class="pill" data-val="ring">○ Ring</button>
     <button class="pill" data-val="diamond">◆ Diamond</button>
     <button class="pill" data-val="cross">✚ Cross</button>
+    <button class="pill" data-val="square">■ Square</button>
     <button class="pill" data-val="triangle">▲ Triangle</button>
   </div>
   <div class="ctrl">
@@ -394,6 +395,7 @@ function addShape(ctx,x,y,r,shape,roundness) {
       break;
     case 'ring': { const inn=r*.42; ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2); ctx.moveTo(x+inn,y); ctx.arc(x,y,inn,0,Math.PI*2,true); break; }
     case 'diamond': ctx.moveTo(x,y-r); ctx.lineTo(x+r,y); ctx.lineTo(x,y+r); ctx.lineTo(x-r,y); ctx.closePath(); break;
+    case 'square': ctx.rect(x-r,y-r,r*2,r*2); break;
     case 'cross': { const a=r*.33; ctx.rect(x-r,y-a,r*2,a*2); ctx.rect(x-a,y-r,a*2,r*2); break; }
     case 'triangle': ctx.moveTo(x,y-r); ctx.lineTo(x+r*.866,y+r*.5); ctx.lineTo(x-r*.866,y+r*.5); ctx.closePath(); break;
     default: ctx.moveTo(x+r,y); ctx.arc(x,y,r,0,Math.PI*2);
@@ -577,6 +579,7 @@ document.getElementById('btn-export-svg').addEventListener('click',()=>{
       else{const cr=(radius*rn).toFixed(2);shapes+=`<rect x="${(cx+ox-radius).toFixed(2)}" y="${(cy+oy-radius).toFixed(2)}" width="${(radius*2).toFixed(2)}" height="${(radius*2).toFixed(2)}" rx="${cr}" fill="${color}"/>`;}
     }else if(P.shape==='ring'){const inn=(radius*.42).toFixed(2);shapes+=`<circle cx="${px}" cy="${py}" r="${r2}" fill="${color}"/><circle cx="${px}" cy="${py}" r="${inn}" fill="${P.bgColor}"/>`;}
     else if(P.shape==='diamond'){const x=parseFloat(px),y=parseFloat(py),r=radius;shapes+=`<polygon points="${x},${y-r} ${x+r},${y} ${x},${y+r} ${x-r},${y}" fill="${color}"/>`;}
+    else if(P.shape==='square'){shapes+=`<rect x="${(cx+ox-radius).toFixed(2)}" y="${(cy+oy-radius).toFixed(2)}" width="${(radius*2).toFixed(2)}" height="${(radius*2).toFixed(2)}" fill="${color}"/>`;}
     else if(P.shape==='cross'){const a=radius*.33;shapes+=`<rect x="${(cx+ox-radius).toFixed(2)}" y="${(cy+oy-a).toFixed(2)}" width="${(radius*2).toFixed(2)}" height="${(a*2).toFixed(2)}" fill="${color}"/><rect x="${(cx+ox-a).toFixed(2)}" y="${(cy+oy-radius).toFixed(2)}" width="${(a*2).toFixed(2)}" height="${(radius*2).toFixed(2)}" fill="${color}"/>`;}
     else if(P.shape==='triangle'){const x=parseFloat(px),y=parseFloat(py),r=radius;shapes+=`<polygon points="${x},${y-r} ${x+r*.866},${y+r*.5} ${x-r*.866},${y+r*.5}" fill="${color}"/>`;}
   }
@@ -619,7 +622,7 @@ document.getElementById('btn-save-preset').addEventListener('click',()=>{
 
 renderPresets();
 
-const SHAPES=['round','ring','diamond','cross','triangle'], MODES=['point','bayer','halftone'];
+const SHAPES=['round','ring','diamond','square','cross','triangle'], MODES=['point','bayer','halftone'];
 
 function randomize(){
   P.mode=MODES[Math.random()*MODES.length|0]; P.shape=SHAPES[Math.random()*SHAPES.length|0];
