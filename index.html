@@ -101,7 +101,8 @@ input[type=range]:disabled { opacity:.35; cursor:not-allowed; }
 .color-row { display:flex; align-items:center; justify-content:space-between; padding:5px 16px; }
 .color-label { font-size:11px; color:var(--text-dim); }
 .color-wrap { display:flex; align-items:center; gap:7px; }
-.color-hex { font-family:var(--mono); font-size:11px; color:var(--text-dim); }
+.color-hex { width:68px; padding:3px 6px; font-family:var(--mono); font-size:11px; color:var(--text); text-align:right; background:var(--surface3); border:1px solid var(--border2); border-radius:3px; outline:none; }
+.color-hex:focus { border-color:var(--accent); }
 input[type=color] { -webkit-appearance:none; width:22px; height:22px; border:1px solid var(--border2); border-radius:3px; cursor:pointer; padding:1px; background:transparent; }
 input[type=color]::-webkit-color-swatch-wrapper { padding:0; }
 input[type=color]::-webkit-color-swatch { border-radius:2px; border:none; }
@@ -264,11 +265,11 @@ input[type=color]::-webkit-color-swatch { border-radius:2px; border:none; }
   <div class="section-label">Colors</div>
   <div class="color-row">
     <span class="color-label">Background</span>
-    <div class="color-wrap"><span class="color-hex" id="hex-bg">#0a0a0a</span><input type="color" id="col-bg" value="#0a0a0a"/></div>
+    <div class="color-wrap"><input type="text" class="color-hex" id="hex-bg" value="#0a0a0a" maxlength="9" spellcheck="false" autocomplete="off"/><input type="color" id="col-bg" value="#0a0a0a"/></div>
   </div>
   <div class="color-row">
     <span class="color-label">Point Color</span>
-    <div class="color-wrap"><span class="color-hex" id="hex-point">#ffffff</span><input type="color" id="col-point" value="#ffffff"/></div>
+    <div class="color-wrap"><input type="text" class="color-hex" id="hex-point" value="#ffffff" maxlength="9" spellcheck="false" autocomplete="off"/><input type="color" id="col-point" value="#ffffff"/></div>
   </div>
 
   <div class="section-label">Presets</div>
@@ -536,7 +537,14 @@ document.getElementById('shape-picker').addEventListener('click',e=>{
 document.getElementById('tog-invert').addEventListener('change',e=>{P.invert=e.target.checked;scheduleRender();});
 document.getElementById('tog-imageColor').addEventListener('change',e=>{P.imageColor=e.target.checked;scheduleRender();});
 
-function wireColor(inputId,hexId,key){ const el=document.getElementById(inputId),hex=document.getElementById(hexId); el.addEventListener('input',()=>{P[key]=el.value;hex.textContent=el.value;scheduleRender();}); }
+function normHex(s){ s=s.trim().replace(/^#?/,'#').toLowerCase(); if(/^#[0-9a-f]{3}$/.test(s)) s='#'+[...s.slice(1)].map(c=>c+c).join(''); return /^#[0-9a-f]{6}$/.test(s)?s:null; }
+function wireColor(inputId,hexId,key){
+  const el=document.getElementById(inputId), hex=document.getElementById(hexId);
+  const set=v=>{ P[key]=v; el.value=v; scheduleRender(); };
+  el.addEventListener('input',()=>{ hex.value=el.value; set(el.value); });
+  hex.addEventListener('input',()=>{ const v=normHex(hex.value); if(v) set(v); });
+  hex.addEventListener('change',()=>{ hex.value=P[key]; });
+}
 wireColor('col-bg','hex-bg','bgColor');
 wireColor('col-point','hex-point','pointColor');
 
@@ -650,7 +658,7 @@ function syncUIFromP(){
   document.getElementById('tog-invert').checked=P.invert;
   document.getElementById('tog-imageColor').checked=P.imageColor;
   document.getElementById('col-bg').value=P.bgColor; document.getElementById('col-point').value=P.pointColor;
-  document.getElementById('hex-bg').textContent=P.bgColor; document.getElementById('hex-point').textContent=P.pointColor;
+  document.getElementById('hex-bg').value=P.bgColor; document.getElementById('hex-point').value=P.pointColor;
 }
 
 let scale=1,tx=0,ty=0,isDragging=false,dragStart={x:0,y:0},transStart={x:0,y:0};
